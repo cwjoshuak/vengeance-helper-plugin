@@ -3,17 +3,37 @@ package com.vengeancehelper;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Units;
 
-@ConfigGroup("Vengeance Helper")
+@ConfigGroup("vengeancehelper")
 public interface VengeanceHelperConfig extends Config
 {
 	@ConfigItem(
-		keyName = "greeting",
-		name = "Welcome Greeting",
-		description = "The message to show to the user when they login"
+			keyName = "shouldNotify",
+			name = "Notify when vengeance expires",
+			description = "Sends a notification once the vengeance needs to be casted"
 	)
-	default String greeting()
+
+	default boolean shouldNotify()
 	{
-		return "Hello";
+		return true;
 	}
+
+	@ConfigItem(
+			keyName = "vengeanceTimeout",
+			name = "Timeout Vengeance Box",
+			description = "The duration of time before the vengeance box disappears."
+	)
+	@Units(Units.MINUTES)
+	default int vengeanceTimeout()
+	{
+		return 3;
+	}
+
+	@ConfigItem(
+			keyName = "shouldFlash",
+			name = "Flash the Reminder Box",
+			description = "Makes the reminder box flash."
+	)
+	default boolean shouldFlash() { return false; }
 }
