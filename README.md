@@ -25,5 +25,5 @@ With the Thrall helper idea I ended up developing one for vengeance of lunar mag
 - The first box works as an alert flasher, so you will see a box in the game that will flash red (if you have Photosensitive epilepsy, don't use this option).
 #### Second box ("Notify when vegeance expires")
 - The second box works like the runelite notification, if you don't want to just turn it off.
-#### Timeout Vengeance Box
+#### Timeout Vengeance Option
 - And finally the third box works as a time limit that you can preset as you wish.
