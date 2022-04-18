@@ -1,4 +1,19 @@
 
+# Vengeance Helper
+
+With the Thrall helper idea I ended up developing one for vengeance of lunar magic.
+
+![Example](https://i.imgur.com/zupHQOp.gif)
+
+
+## Reference
+
+ - [Thrall Helper](https://github.com/PortAGuy/thrall-helper/tree/a57224b4ba3016a3fffc2b92ad3fcb01f3d0c407)
+## Authors
+
+- [@Th3mike](https://github.com/Th3mike)
+
+
 ## FAQ
 
 #### How to use?
