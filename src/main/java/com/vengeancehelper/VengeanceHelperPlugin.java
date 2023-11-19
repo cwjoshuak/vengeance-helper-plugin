@@ -3,6 +3,7 @@ package com.vengeancehelper;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
@@ -13,6 +14,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
+
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
@@ -22,21 +24,11 @@ import java.time.Instant;
 		name = "Vengeance Helper"
 )
 public class VengeanceHelperPlugin extends Plugin {
-
-	boolean casted = false;
-	private Instant last_vengeance_casted;
-
-	@Inject
-	private ClientThread clientThread;
-
 	@Inject
 	private Client client;
 
 	@Inject
 	private Notifier notifier;
-
-	@Inject
-	private SpriteManager spriteManager;
 
 	@Inject
 	private VengeanceHelperOverlay overlay;
@@ -48,43 +40,55 @@ public class VengeanceHelperPlugin extends Plugin {
 	private OverlayManager overlayManager;
 
 	@Override
-	protected void startUp() throws Exception {
+	protected void startUp() throws Exception
+	{
 	}
 
 	@Override
-	protected void shutDown() throws Exception {
+	protected void shutDown() throws Exception
+	{
+		overlayLastDisplayed = null;
 		overlayManager.remove(overlay);
 	}
 
-	@Subscribe
-	public void onVarbitChanged(VarbitChanged event) {
-		if (last_vengeance_casted != null) {
-			final Duration veng_timeout = Duration.ofMinutes(config.vengeanceTimeout() + 1);
-			final Duration since_veng = Duration.between(last_vengeance_casted, Instant.now());
+	private Instant overlayLastDisplayed;
 
-			if (since_veng.compareTo(veng_timeout) >= 0) {
+	@Subscribe
+	public void onGameTick(GameTick gameTick)
+	{
+		if (overlayLastDisplayed != null)
+		{
+			Duration timeoutOverlay = Duration.ofMinutes(config.vengeanceTimeout());
+			Duration sinceLastOverlayDisplay = Duration.between(overlayLastDisplayed, Instant.now());
+			if (sinceLastOverlayDisplay.compareTo(timeoutOverlay) >= 0)
+			{
 				overlayManager.remove(overlay);
-				last_vengeance_casted = null;
+				overlayLastDisplayed = null;
 			}
 		}
-
-		int veng = client.getVarbitValue(Varbits.VENGEANCE_ACTIVE);
-		int vengCooldownVarb = client.getVarbitValue(Varbits.VENGEANCE_COOLDOWN);
-
-		if (veng == 0 && !casted && vengCooldownVarb == 0) {
-			overlayManager.add(overlay);
-			if (config.shouldFlash())
-				notifier.notify("You need to cast a vengeance!");
-			casted = true;
-		} else {
-			overlayManager.remove(overlay);
-			last_vengeance_casted = Instant.now();
-			casted = false;
+	}
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged event)
+	{
+		if (event.getVarbitId() == Varbits.VENGEANCE_ACTIVE || event.getVarbitId() == Varbits.VENGEANCE_COOLDOWN)
+		{
+			boolean isVengeanceActive = client.getVarbitValue(Varbits.VENGEANCE_ACTIVE) == 1;
+			boolean isVengeanceCastable = client.getVarbitValue(Varbits.VENGEANCE_COOLDOWN) == 0;
+			if (!isVengeanceActive && isVengeanceCastable)
+			{
+				overlayManager.add(overlay);
+				if(config.shouldNotify())
+				{
+					notifier.notify("You need to cast a vengeance!");
+				}
+				overlayLastDisplayed = Instant.now();
+			}
 		}
 	}
 
 	@Provides
-	VengeanceHelperConfig provideConfig(ConfigManager configManager) {
+	VengeanceHelperConfig provideConfig(ConfigManager configManager)
+	{
 		return configManager.getConfig(VengeanceHelperConfig.class);
 	}
 }
