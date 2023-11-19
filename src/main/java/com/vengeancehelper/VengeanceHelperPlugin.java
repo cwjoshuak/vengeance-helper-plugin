@@ -37,6 +37,8 @@ public class VengeanceHelperPlugin extends Plugin {
 	private OverlayManager overlayManager;
 
 	private Instant overlayLastDisplayed;
+	private static final int SPELLBOOK_VARBIT = 4070;
+	private static final int LUNAR_SPELLBOOK = 2;
 
 	@Override
 	protected void startUp() throws Exception
@@ -52,6 +54,10 @@ public class VengeanceHelperPlugin extends Plugin {
 	@Subscribe
 	public void onGameTick(GameTick gameTick)
 	{
+		if (config.onlyLunar() && client.getVarbitValue(SPELLBOOK_VARBIT) != LUNAR_SPELLBOOK)
+		{
+			clearOverlay();
+		}
 		if (overlayLastDisplayed != null)
 		{
 			Duration timeoutOverlay = Duration.ofSeconds(config.vengeanceTimeout());
@@ -72,6 +78,10 @@ public class VengeanceHelperPlugin extends Plugin {
 			boolean isVengeanceCastable = client.getVarbitValue(Varbits.VENGEANCE_COOLDOWN) == 0;
 			if (!isVengeanceActive && isVengeanceCastable)
 			{
+				if (config.onlyLunar() && client.getVarbitValue(SPELLBOOK_VARBIT) != LUNAR_SPELLBOOK)
+				{
+					return;
+				}
 				overlayManager.add(overlay);
 				if(config.shouldNotify())
 				{

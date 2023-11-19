@@ -36,4 +36,11 @@ public interface VengeanceHelperConfig extends Config
 	{
 		return 180;
 	}
+
+	@ConfigItem(
+			keyName = "onlyLunar",
+			name = "Only on Lunar Spellbook",
+			description = "Only display the reminder box when on the Lunar spellbook"
+	)
+	default boolean onlyLunar() { return true; }
 }
