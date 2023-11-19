@@ -23,6 +23,9 @@ import java.time.Instant;
 )
 public class VengeanceHelperPlugin extends Plugin {
 
+	private static final int SPELLBOOK_VARBIT = 4070;
+	private static final int LUNAR_SPELLBOOK = 2;
+
 	boolean casted = false;
 	private Instant last_vengeance_casted;
 
@@ -62,7 +65,7 @@ public class VengeanceHelperPlugin extends Plugin {
 			final Duration veng_timeout = Duration.ofMinutes(config.vengeanceTimeout() + 1);
 			final Duration since_veng = Duration.between(last_vengeance_casted, Instant.now());
 
-			if (since_veng.compareTo(veng_timeout) >= 0) {
+			if (!(client.getVarbitValue(SPELLBOOK_VARBIT) == LUNAR_SPELLBOOK) && since_veng.compareTo(veng_timeout) >= 0) {
 				overlayManager.remove(overlay);
 				last_vengeance_casted = null;
 			}
