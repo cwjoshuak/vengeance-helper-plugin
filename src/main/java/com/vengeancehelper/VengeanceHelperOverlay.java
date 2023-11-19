@@ -29,7 +29,7 @@ public class VengeanceHelperOverlay extends OverlayPanel {
         panelComponent.getChildren().clear();
 
         panelComponent.getChildren().add((LineComponent.builder())
-                .left("You need to cast a vengeance!")
+                .left("You need to cast vengeance!")
                 .build());
 
         if (config.shouldFlash()) {

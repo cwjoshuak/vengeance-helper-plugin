@@ -6,10 +6,8 @@ import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.Notifier;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.game.SpriteManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -39,6 +37,10 @@ public class VengeanceHelperPlugin extends Plugin {
 	@Inject
 	private OverlayManager overlayManager;
 
+	private Instant overlayLastDisplayed;
+	private static final int SPELLBOOK_VARBIT = 4070;
+	private static final int LUNAR_SPELLBOOK = 2;
+
 	@Override
 	protected void startUp() throws Exception
 	{
@@ -47,23 +49,23 @@ public class VengeanceHelperPlugin extends Plugin {
 	@Override
 	protected void shutDown() throws Exception
 	{
-		overlayLastDisplayed = null;
-		overlayManager.remove(overlay);
+		clearOverlay();
 	}
-
-	private Instant overlayLastDisplayed;
 
 	@Subscribe
 	public void onGameTick(GameTick gameTick)
 	{
+		if (config.onlyLunar() && client.getVarbitValue(SPELLBOOK_VARBIT) != LUNAR_SPELLBOOK)
+		{
+			clearOverlay();
+		}
 		if (overlayLastDisplayed != null)
 		{
-			Duration timeoutOverlay = Duration.ofMinutes(config.vengeanceTimeout());
+			Duration timeoutOverlay = Duration.ofSeconds(config.vengeanceTimeout());
 			Duration sinceLastOverlayDisplay = Duration.between(overlayLastDisplayed, Instant.now());
 			if (sinceLastOverlayDisplay.compareTo(timeoutOverlay) >= 0)
 			{
-				overlayManager.remove(overlay);
-				overlayLastDisplayed = null;
+				clearOverlay();
 			}
 		}
 	}
@@ -79,11 +81,21 @@ public class VengeanceHelperPlugin extends Plugin {
 				overlayManager.add(overlay);
 				if(config.shouldNotify())
 				{
-					notifier.notify("You need to cast a vengeance!");
+					notifier.notify("You need to cast vengeance!");
 				}
 				overlayLastDisplayed = Instant.now();
 			}
+			else
+			{
+				clearOverlay();
+			}
 		}
+	}
+
+	public void clearOverlay()
+	{
+		overlayManager.remove(overlay);
+		overlayLastDisplayed = null;
 	}
 
 	@Provides
