@@ -77,7 +77,7 @@ public class VengeanceHelperPlugin extends Plugin {
 		if (veng == 0 && !casted && vengCooldownVarb == 0) {
 			overlayManager.add(overlay);
 			if (config.shouldFlash())
-				notifier.notify("You need to cast a vengeance!");
+				notifier.notify("Cast Vengeance!");
 			casted = true;
 		} else {
 			overlayManager.remove(overlay);
